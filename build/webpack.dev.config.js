@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const { smart } = require('webpack-merge');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const baseConfig = require('./webpack.base.config');
 
@@ -17,13 +18,28 @@ module.exports = smart(baseConfig, {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.global\.css$/,
         use: [
           'style-loader',
           {
             loader: 'css-loader',
             options: {
               importLoaders: 1,
+              module: true,
+            },
+          },
+          'postcss-loader',
+        ],
+      },
+      {
+        test: /^((?!\.global).)*\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              module: true,
             },
           },
           'postcss-loader',
@@ -34,6 +50,11 @@ module.exports = smart(baseConfig, {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
+
+    new BundleAnalyzerPlugin({
+      analyzerPort: port + 1,
+      open: false,
+    }),
   ],
   devServer: {
     port,

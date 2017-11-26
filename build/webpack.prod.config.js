@@ -15,7 +15,24 @@ module.exports = smart(baseConfig, {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.global\.css$/,
+        use:
+          ExtractTextPlugin.extract({
+            fallback: 'style-loader',
+            use: [
+              'style-loader',
+              {
+                loader: 'css-loader',
+                options: {
+                  importLoaders: 1,
+                },
+              },
+              'postcss-loader',
+            ],
+          }),
+      },
+      {
+        test: /^((?!\.global).)*\.css$/,
         use:
           ExtractTextPlugin.extract({
             fallback: 'style-loader',
@@ -24,6 +41,7 @@ module.exports = smart(baseConfig, {
                 loader: 'css-loader',
                 options: {
                   sourceMap: true,
+                  module: true,
                   importLoaders: 1,
                   minimize: true,
                 },
