@@ -6,3 +6,10 @@
     float: right;
   }
 }
+
+.table-container {
+  & td,
+  & th {
+    white-space: nowrap;
+  }
+}

@@ -4,6 +4,7 @@ import * as R from 'ramda';
 import { DateTime } from 'luxon';
 
 import styles from './MemberTable.css';
+import EditForm from './EditForm';
 
 const getGroupName = R.path(['organization', 0, 'department', '0', 'name']);
 const getExistGroups = R.map(getGroupName);
@@ -93,10 +94,14 @@ export default class MemberTable extends Component {
       rowKey: '_id',
       dataSource: this.props.data,
       title: this.renderTitle,
+      scroll: {
+        x: true,
+      },
     };
 
     return (
-      <div>
+      <div className={styles.tableContainer}>
+        <EditForm />
         <Table {...tableConfig} />
       </div>
     );
