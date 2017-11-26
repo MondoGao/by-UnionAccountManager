@@ -48,7 +48,9 @@
     "antd": "^2.13.10",
     "babel-polyfill": "^6.26.0",
     "classnames": "^2.2.5",
+    "luxon": "^0.2.2",
     "normalize.css": "^7.0.0",
+    "ramda": "^0.25.0",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "whatwg-fetch": "^2.0.3"

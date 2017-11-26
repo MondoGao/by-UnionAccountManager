@@ -1,5 +1,12 @@
 .app {
-  & :global(.ant-layout-content) {
+  height: 100vh;
+
+  & :global .ant-layout-header {
+    color: #fff;
+    font-size: 24px;
+  }
+
+  & :global .ant-layout-content {
     margin: 0 50px;
   }
 }

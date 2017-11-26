@@ -41,7 +41,7 @@ module.exports = smart(baseConfig, {
             options: {
               importLoaders: 1,
               modules: true,
-              camalCase: true,
+              camelCase: true,
               localIdentName: '[name]__[local]--[hash:base64:5]',
             },
           },
