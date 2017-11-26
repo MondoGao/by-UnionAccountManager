@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 
+import './index.global.css';
+
 import App from './components/App';
 
 const render = (Component) => {

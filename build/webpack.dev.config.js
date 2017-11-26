@@ -19,13 +19,13 @@ module.exports = smart(baseConfig, {
     rules: [
       {
         test: /\.global\.css$/,
+        exclude: /node_modules/,
         use: [
           'style-loader',
           {
             loader: 'css-loader',
             options: {
               importLoaders: 1,
-              module: true,
             },
           },
           'postcss-loader',
@@ -33,16 +33,27 @@ module.exports = smart(baseConfig, {
       },
       {
         test: /^((?!\.global).)*\.css$/,
+        exclude: /node_modules/,
         use: [
           'style-loader',
           {
             loader: 'css-loader',
             options: {
               importLoaders: 1,
-              module: true,
+              modules: true,
+              camalCase: true,
+              localIdentName: '[name]__[local]--[hash:base64:5]',
             },
           },
           'postcss-loader',
+        ],
+      },
+      {
+        test: /\.css$/,
+        include: /node_modules/,
+        use: [
+          'style-loader',
+          'css-loader',
         ],
       },
     ],
@@ -53,7 +64,7 @@ module.exports = smart(baseConfig, {
 
     new BundleAnalyzerPlugin({
       analyzerPort: port + 1,
-      open: false,
+      openAnalyzer: false,
     }),
   ],
   devServer: {

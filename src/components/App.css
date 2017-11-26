@@ -1,0 +1,5 @@
+.app {
+  & :global(.ant-layout-content) {
+    margin: 0 50px;
+  }
+}

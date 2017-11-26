@@ -1,15 +1,17 @@
 {
   "presets": [
-    "react", ["env", {
+    "react",
+    ["env", {
       "modules": false
     }],
     "stage-0"
   ],
   "plugins": [
-    "react-hot-loader/babel",
     ["import", {
       "libraryName": "antd",
-      "style": true
-    }]
+      "libraryDirectory": "es",
+      "style": "css"
+    }],
+    "react-hot-loader/babel"
   ]
 }
