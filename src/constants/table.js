@@ -1,3 +1,6 @@
+import * as R from 'ramda';
+import { DateTime } from 'luxon';
+
 export const types = {
   string: 'STRING',
   time: 'TIME',
@@ -5,6 +8,23 @@ export const types = {
   array: 'ARRAY',
   object: 'OBJECT',
 };
+
+const getGroupName = R.path(['organization', 'department', 'name']);
+const getExistGroups = R.map(getGroupName);
+const getUniqExistGroups = R.compose(R.uniq, getExistGroups);
+
+const getPosition = R.path(['organization', 'role']);
+const getExistPositions = R.map(getPosition);
+const getUniqExistPositions = R.compose(R.uniq, getExistPositions);
+
+const generateTableFilter = data => ({
+  text: data,
+  value: data,
+});
+const generateTableFilters = R.map(generateTableFilter);
+
+const renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT);
+const renderGender = gender => (gender === 'male' ? '男' : '女');
 
 export const schoolColumns = {
   name: {
@@ -34,10 +54,16 @@ export const schoolColumns = {
   enrollTime: {
     title: '入学时间',
     type: types.time,
+    tableOptions: {
+      render: renderMilisTime,
+    },
   },
   graduateTime: {
     title: '毕业时间',
     type: types.time,
+    tableOptions: {
+      render: renderMilisTime,
+    },
   },
 };
 
@@ -48,6 +74,10 @@ export const organizationColumns = {
       name: {
         title: '组别',
         type: types.string,
+        tableOptions: {
+          $filters: R.compose(generateTableFilters, getUniqExistGroups),
+          onFilter: (value, record) => getGroupName(record) === value,
+        },
       },
       role: {
         title: '组别职位',
@@ -58,6 +88,9 @@ export const organizationColumns = {
   role: {
     title: '团队职位',
     type: types.string,
+    tableOptions: {
+      $filters: R.compose(generateTableFilters, getUniqExistPositions),
+    },
   },
   nickname: {
     title: '昵称',
@@ -78,10 +111,16 @@ export const organizationColumns = {
   enrollTime: {
     title: '加入冰岩',
     type: types.time,
+    tableOptions: {
+      render: renderMilisTime,
+    },
   },
   leaveTime: {
     title: '离开冰岩',
     type: types.time,
+    tableOptions: {
+      render: renderMilisTime,
+    },
   },
 };
 
@@ -105,6 +144,9 @@ export const columns = {
   sex: {
     title: '性别',
     type: types.string,
+    tableOptions: {
+      render: renderGender,
+    }
   },
   phoneNumber: {
     title: '手机号',

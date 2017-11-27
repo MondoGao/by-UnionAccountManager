@@ -1,28 +1,48 @@
 import React, { Component } from 'react';
 import { Table, Button } from 'antd';
 import * as R from 'ramda';
-import { DateTime } from 'luxon';
 
 import styles from './MemberTable.css';
+import { columns } from '../constants/table';
 import EditForm from './EditForm';
 
-const getGroupName = R.path(['organization', 'department', 'name']);
-const getExistGroups = R.map(getGroupName);
-const getUniqExistGroups = R.compose(R.uniq, getExistGroups);
+const generateTableConfig = ({ columnPath, data }) => {
+  const afterPath = columnPath.join('.children.').split('.');
+  const column = R.path(afterPath, columns);
 
-const getPosition = R.path(['organization', 'role']);
-const getExistPositions = R.map(getPosition);
-const getUniqExistPositions = R.compose(R.uniq, getExistPositions);
+  const tableConfigs = {
+    title: column.title,
+    dataIndex: columnPath.join('.'),
+  };
 
-const generateTableFilter = data => ({
-  text: data,
-  value: data,
-});
-const generateTableFilters = R.map(generateTableFilter);
+  if (column.tableOptions) {
+    R.mapObjIndexed((config, key) => {
+      if (key.indexOf('$') === 0) {
+        tableConfigs[key.slice(1)] = config(data);
+      } else {
+        tableConfigs[key] = config;
+      }
+    }, column.tableOptions);
+  }
+
+  return tableConfigs;
+};
 
 export default class MemberTable extends Component {
   state = {
     isFormVisible: false,
+    selectedColomns: [
+      ['name'],
+      ['organization', 'department', 'name'],
+      ['organization', 'role'],
+      ['sex'],
+      ['phoneNumber'],
+      ['email'],
+      ['school','class'],
+      ['school', 'IDNumber'],
+      ['organization', 'enrollTime'],
+      ['organization', 'leaveTime'],
+    ],
   }
 
   toggleForm = () => {
@@ -35,9 +55,6 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
-  renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT)
-
-  renderGender = gender => (gender === 'male' ? '男' : '女')
 
   renderTitle = () => (
     <div className={styles.tableTitle}>
@@ -52,54 +69,10 @@ export default class MemberTable extends Component {
   )
 
   render() {
-    const columns = [
-      {
-        dataIndex: 'name',
-        title: '姓名',
-      },
-      {
-        dataIndex: 'organization.department.name',
-        title: '组别',
-        filters: R.compose(generateTableFilters, getUniqExistGroups)(this.props.data),
-        onFilter: (value, record) => getGroupName(record) === value,
-      },
-      {
-        dataIndex: 'organization.role',
-        title: '职位',
-        filters: R.compose(generateTableFilters, getUniqExistPositions)(this.props.data),
-      },
-      {
-        dataIndex: 'sex',
-        title: '性别',
-        render: this.renderGender,
-      },
-      {
-        dataIndex: 'phoneNumber',
-        title: '手机号',
-      },
-      {
-        dataIndex: 'email',
-        title: '邮箱',
-      },
-      {
-        dataIndex: 'school.class',
-        title: '班级',
-      },
-      {
-        dataIndex: 'school.IDNumber',
-        title: '学号',
-      },
-      {
-        dataIndex: 'organization.enrollTime',
-        title: '加入冰岩',
-        render: this.renderMilisTime,
-      },
-      {
-        dataIndex: 'organization.leaveTime',
-        title: '毕业时间',
-        render: this.renderMilisTime,
-      },
-    ];
+    const { selectedColomns, isFormVisible } = this.state;
+    const columns = R.map((columnPath) => generateTableConfig({ columnPath, data: this.props.data }), selectedColomns);
+
+    console.log(columns);
 
     const tableConfig = {
       columns,
@@ -111,7 +84,7 @@ export default class MemberTable extends Component {
       },
     };
     const editFormConfig = {
-      visible: this.state.isFormVisible,
+      visible: isFormVisible,
       onCancel: this.toggleForm,
       onOk: (...args) => console.log(args),
     };
