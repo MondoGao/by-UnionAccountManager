@@ -14,7 +14,7 @@ const getPosition = R.path(['organization', 0, 'role']);
 const getExistPositions = R.map(getPosition);
 const getUniqExistPositions = R.compose(R.uniq, getExistPositions);
 
-const generateTableFilter = (data) => ({
+const generateTableFilter = data => ({
   text: data,
   value: data,
 });
@@ -23,21 +23,19 @@ const generateTableFilters = R.map(generateTableFilter);
 export default class MemberTable extends Component {
   renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT)
 
-  renderGender = gender => gender === 'male' ? '男' : '女'
+  renderGender = gender => (gender === 'male' ? '男' : '女')
 
-  renderTitle() {
-    return (
-      <div className={styles.tableTitle}>
-        <h2>成员信息</h2>
-        <span>
-          <Button.Group>
-            <Button type="primary">增加成员</Button>
-            <Button type="primary">批量上传</Button>
-          </Button.Group>
-        </span>
-      </div>
-    )
-  }
+  renderTitle = () => (
+    <div className={styles.tableTitle}>
+      <h2>成员信息</h2>
+      <span>
+        <Button.Group>
+          <Button type="primary">增加成员</Button>
+          <Button type="primary">批量上传</Button>
+        </Button.Group>
+      </span>
+    </div>
+  )
 
   render() {
     const columns = [
@@ -87,7 +85,7 @@ export default class MemberTable extends Component {
         title: '毕业时间',
         render: this.renderMilisTime,
       },
-    ]
+    ];
 
     const tableConfig = {
       columns,
