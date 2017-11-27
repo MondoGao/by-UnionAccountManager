@@ -4,25 +4,17 @@ import * as R from 'ramda';
 
 import styles from './MemberTable.css';
 import { columns, types } from '../constants/table';
+import {
+  transformColumns,
+  transColumnPathToColumnDataPath,
+} from '../constants/tableHelpers';
 import EditForm from './EditForm';
 
 const generateTableConfig = ({ columnPath, data }) => {
-  const columnDataPath = [];
-
-  const column = R.reduce((nowColumns, path) => {
-    columnDataPath.push(path);
-    const nowColumn = nowColumns[path];
-
-    switch (nowColumn.type) {
-      case types.array:
-        columnDataPath.push(0);
-        return nowColumn.children;
-      case types.object:
-        return nowColumn.children;
-      default:
-        return nowColumn;
-    }
-  }, columns, columnPath);
+  const { column, columnDataPath } = transColumnPathToColumnDataPath({
+    columns,
+    columnPath,
+  });
 
   const tableConfigs = {
     title: column.title,
@@ -58,6 +50,14 @@ const generateTableConfig = ({ columnPath, data }) => {
   return tableConfigs;
 };
 
+const columnsWithColumnDataPath = transformColumns({
+  columns,
+  generateFun({ column, path }) {
+    return path;
+  },
+  willFlattenResult: false,
+});
+
 export default class MemberTable extends Component {
   state = {
     isFormVisible: false,
@@ -73,6 +73,7 @@ export default class MemberTable extends Component {
       ['organization', 'enrollTime'],
       ['organization', 'leaveTime'],
     ],
+    formData: null,
   }
 
   toggleForm = () => {
@@ -85,6 +86,13 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
+  handleEditMemberClick = (row) => () => {
+    this.setState(() => ({
+      formData: row,
+    }));
+
+    this.toggleForm();
+  }
 
   renderTitle = () => (
     <div className={styles.tableTitle}>
@@ -98,12 +106,24 @@ export default class MemberTable extends Component {
     </div>
   )
 
+  renderRowActions = (row) => (
+    <Button onClick={this.handleEditMemberClick(row)}>编辑</Button>
+  )
+
   render() {
-    const { selectedColomns, isFormVisible } = this.state;
+    const { selectedColomns, isFormVisible, formData } = this.state;
     const columns = R.map((columnPath) => generateTableConfig({ columnPath, data: this.props.data }), selectedColomns);
 
+    const extraColumns = [
+      {
+        title: '操作',
+        key: '__actions',
+        render: this.renderRowActions,
+      }
+    ]
+
     const tableConfig = {
-      columns,
+      columns: [...columns, ...extraColumns],
       rowKey: '_id',
       dataSource: this.props.data,
       title: this.renderTitle,
@@ -112,6 +132,7 @@ export default class MemberTable extends Component {
       },
     };
     const editFormConfig = {
+      formData,
       visible: isFormVisible,
       onCancel: this.toggleForm,
       onOk: (...args) => console.log(args),

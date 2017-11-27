@@ -4,7 +4,11 @@ import * as R from 'ramda';
 import moment from 'moment';
 
 import { columns, types } from '../constants/table';
-import { transformColumns } from '../constants/tableHelpers.js';
+import {
+  transformColumns,
+  transColumnDataPathToColumnPath,
+  getColumnDefineFromColumnDataPath,
+} from '../constants/tableHelpers';
 
 const FormItem = Form.Item;
 
@@ -51,8 +55,69 @@ const generateFormItemFromColumn = ({ path, column, ctx }) => {
   return formItem;
 }
 
+const transformFormDataToDotFlattenObj = ({ formData, columnsDataPath }) => {
+  let resultObj = {};
+
+  R.mapObjIndexed((value, key) => {
+    if (value instanceof Array) {
+      R.map((columnItem) => {
+        resultObj = {
+          ...resultObj,
+          ...transformFormDataToDotFlattenObj({
+            formData: columnItem,
+            columnsDataPath: columnsDataPath[key],
+          }),
+        };
+      }, value);
+    } else if (typeof value === 'object') {
+      resultObj = {
+        ...resultObj,
+        ...transformFormDataToDotFlattenObj({
+          formData: value,
+          columnsDataPath: columnsDataPath[key],
+        }),
+      };
+    } else {
+      const columnDataPath = columnsDataPath[key];
+      if (columnDataPath) {
+        const columnDef = getColumnDefineFromColumnDataPath(columns, columnDataPath);
+
+        if (columnDef.type === types.time) {
+          resultObj[columnDataPath] = moment(value);
+          return;
+        }
+
+        resultObj[columnDataPath] = value;
+      }
+    }
+  }, formData);
+
+  return resultObj;
+};
+
+const generateFieldObj = value => ({
+  value,
+})
+
+const columnsWithColumnDataPath = transformColumns({
+  columns,
+  generateFun({ column, path }) {
+    return path.join('.');
+  },
+  willFlattenResult: false,
+});
 
 @Form.create({
+  mapPropsToFields({ formData }) {
+    if (formData) {
+      const result = R.map(value => ({ value }))(transformFormDataToDotFlattenObj({
+        formData,
+        columnsDataPath: columnsWithColumnDataPath,
+      }));
+      console.log(result);
+      return result;
+    }
+  },
 })
 export default class EditForm extends Component {
   handleModalSubmit = () => {
