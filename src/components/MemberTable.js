@@ -6,11 +6,11 @@ import { DateTime } from 'luxon';
 import styles from './MemberTable.css';
 import EditForm from './EditForm';
 
-const getGroupName = R.path(['organization', 0, 'department', '0', 'name']);
+const getGroupName = R.path(['organization', 'department', 'name']);
 const getExistGroups = R.map(getGroupName);
 const getUniqExistGroups = R.compose(R.uniq, getExistGroups);
 
-const getPosition = R.path(['organization', 0, 'role']);
+const getPosition = R.path(['organization', 'role']);
 const getExistPositions = R.map(getPosition);
 const getUniqExistPositions = R.compose(R.uniq, getExistPositions);
 
@@ -21,6 +21,20 @@ const generateTableFilter = data => ({
 const generateTableFilters = R.map(generateTableFilter);
 
 export default class MemberTable extends Component {
+  state = {
+    isFormVisible: false,
+  }
+
+  toggleForm = () => {
+    this.setState(state => ({
+      isFormVisible: !state.isFormVisible,
+    }));
+  }
+
+  handleAddMemberClick = () => {
+    this.toggleForm();
+  }
+
   renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT)
 
   renderGender = gender => (gender === 'male' ? '男' : '女')
@@ -30,7 +44,7 @@ export default class MemberTable extends Component {
       <h2>成员信息</h2>
       <span>
         <Button.Group>
-          <Button type="primary">增加成员</Button>
+          <Button type="primary" onClick={this.handleAddMemberClick}>增加成员</Button>
           <Button type="primary">批量上传</Button>
         </Button.Group>
       </span>
@@ -44,13 +58,13 @@ export default class MemberTable extends Component {
         title: '姓名',
       },
       {
-        dataIndex: 'organization.0.department.0.name',
+        dataIndex: 'organization.department.name',
         title: '组别',
         filters: R.compose(generateTableFilters, getUniqExistGroups)(this.props.data),
         onFilter: (value, record) => getGroupName(record) === value,
       },
       {
-        dataIndex: 'organization.0.role',
+        dataIndex: 'organization.role',
         title: '职位',
         filters: R.compose(generateTableFilters, getUniqExistPositions)(this.props.data),
       },
@@ -68,20 +82,20 @@ export default class MemberTable extends Component {
         title: '邮箱',
       },
       {
-        dataIndex: 'school.0.class',
+        dataIndex: 'school.class',
         title: '班级',
       },
       {
-        dataIndex: 'school.0.IDNumber',
+        dataIndex: 'school.IDNumber',
         title: '学号',
       },
       {
-        dataIndex: 'organization.0.enrollTime',
+        dataIndex: 'organization.enrollTime',
         title: '加入冰岩',
         render: this.renderMilisTime,
       },
       {
-        dataIndex: 'organization.0.leaveTime',
+        dataIndex: 'organization.leaveTime',
         title: '毕业时间',
         render: this.renderMilisTime,
       },
@@ -96,10 +110,15 @@ export default class MemberTable extends Component {
         x: true,
       },
     };
+    const editFormConfig = {
+      visible: this.state.isFormVisible,
+      onCancel: this.toggleForm,
+      onOk: (...args) => console.log(args),
+    };
 
     return (
       <div className={styles.tableContainer}>
-        <EditForm />
+        <EditForm {...editFormConfig} />
         <Table {...tableConfig} />
       </div>
     );
