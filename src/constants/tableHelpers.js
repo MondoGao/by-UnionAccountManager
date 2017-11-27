@@ -11,6 +11,7 @@ export const transformColumns = ({ generateFun, ctx, columns }) => {
     const generateFormFromColumn = (column, path) => {
       switch (column.type) {
         case types.array:
+          return flattenResult(generateFormFromColumns([...path, 0])(column.children));
         case types.object:
           return flattenResult(generateFormFromColumns(path)(column.children));
         default:
@@ -30,3 +31,7 @@ export const transformColumns = ({ generateFun, ctx, columns }) => {
     generateFormFromColumns([]),
   )(columns);
 };
+
+export const transformColumnsToPaths = (columns) => {
+
+}

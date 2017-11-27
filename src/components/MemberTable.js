@@ -3,31 +3,43 @@ import { Table, Button } from 'antd';
 import * as R from 'ramda';
 
 import styles from './MemberTable.css';
-import { columns } from '../constants/table';
+import { columns, types } from '../constants/table';
 import EditForm from './EditForm';
 
 const generateTableConfig = ({ columnPath, data }) => {
-  const afterPath = columnPath.join('.children.').split('.');
-  const column = R.path(afterPath, columns);
+  const columnDataPath = [];
+
+  const column = R.reduce((nowColumns, path) => {
+    columnDataPath.push(path);
+    const nowColumn = nowColumns[path];
+
+    switch (nowColumn.type) {
+      case types.array:
+        columnDataPath.push(0);
+        return nowColumn.children;
+      case types.object:
+        return nowColumn.children;
+      default:
+        return nowColumn;
+    }
+  }, columns, columnPath);
 
   const tableConfigs = {
     title: column.title,
-    dataIndex: columnPath.join('.'),
+    dataIndex: columnDataPath.join('.'),
   };
 
   if (column.tableOptions) {
     R.mapObjIndexed((config, key) => {
-      if (key.indexOf('$') === 0) {
-        tableConfigs[key.slice(1)] = config(data);
-      } else if (key === 'hasFilters' && config) {
+      if (key === 'hasFilters' && config) {
         const getExistData = R.compose(
           R.uniq,
-          R.map(R.path(columnPath)),
+          R.map(R.path(columnDataPath)),
         );
 
-        const generateTableFilter = data => ({
-          text: data,
-          value: data,
+        const generateTableFilter = uniqData => ({
+          text: uniqData,
+          value: uniqData,
         });
         const generateTableFilters = R.map(generateTableFilter);
 
@@ -56,7 +68,7 @@ export default class MemberTable extends Component {
       ['sex'],
       ['phoneNumber'],
       ['email'],
-      ['school','class'],
+      ['school', 'class'],
       ['school', 'IDNumber'],
       ['organization', 'enrollTime'],
       ['organization', 'leaveTime'],
@@ -89,8 +101,6 @@ export default class MemberTable extends Component {
   render() {
     const { selectedColomns, isFormVisible } = this.state;
     const columns = R.map((columnPath) => generateTableConfig({ columnPath, data: this.props.data }), selectedColomns);
-
-    console.log(columns);
 
     const tableConfig = {
       columns,
