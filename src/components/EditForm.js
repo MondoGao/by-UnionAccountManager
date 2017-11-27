@@ -4,12 +4,12 @@ import * as R from 'ramda';
 import moment from 'moment';
 
 import { columns, types } from '../constants/table';
+import { transformColumns } from '../constants/tableHelpers.js';
 
 const FormItem = Form.Item;
 
-
-const generateForm = (getFieldDecorator) => {
-  const generateFieldDecoratorFromSchema = ({ path, type }) => {
+const generateFormItemFromColumn = ({ path, column, ctx }) => {
+  const generateFieldDecoratorFromSchema = ({ path, type, getFieldDecorator }) => {
     const name = path.join('.');
     let formItem;
     const fieldOptions = {};
@@ -32,72 +32,25 @@ const generateForm = (getFieldDecorator) => {
     return getFieldDecorator(name, fieldOptions)(formItem);
   };
 
-  const flattenResult = R.compose(
-    R.flatten,
-    R.values,
-  );
-
-  const generateFormFromColumns = (basePath = []) => {
-    const generateFormFromColumn = (column, path) => {
-      const formItemConfig = {
-        label: column.title,
-        labelCol: { span: 4 },
-        wrapperCol: { span: 18 },
-      };
-
-      const formItems = [];
-
-      switch (column.type) {
-        case types.array:
-        case types.object:
-          return flattenResult(generateFormFromColumns(path)(column.children));
-        default: {
-          const formItem = (
-            <FormItem {...formItemConfig} key={path.join('.')}>
-              {generateFieldDecoratorFromSchema({
-                path,
-                type: column.type,
-              })}
-            </FormItem>
-          );
-
-          formItems.push(formItem);
-        }
-      }
-
-      return formItems;
-    };
-
-    return R.mapObjIndexed((value, key) => generateFormFromColumn(value, [...basePath, key]));
+  const formItemConfig = {
+    label: column.title,
+    labelCol: { span: 4 },
+    wrapperCol: { span: 18 },
   };
 
-  return R.compose(
-    flattenResult,
-    generateFormFromColumns([]),
+  const formItem = (
+    <FormItem {...formItemConfig} key={path.join('.')}>
+      {generateFieldDecoratorFromSchema({
+        path,
+        getFieldDecorator: ctx.getFieldDecorator,
+        type: column.type,
+      })}
+    </FormItem>
   );
-};
 
-const generateEmptyFormFields = (columns) => {
+  return formItem;
+}
 
-  const generateEmptyFormField = (column) => {
-    switch (column.type) {
-      case types.array:
-      case types.object:
-        return generateEmptyFormFields(column.children);
-      case types.string:
-      case types.password:
-        return 'test';
-      case types.time:
-        return moment();
-      default:
-        return undefined;
-    }
-  }
-
-  return R.map(generateEmptyFormField, columns);
-};
-
-console.log(generateEmptyFormFields(columns));
 
 @Form.create({
 })
@@ -124,7 +77,11 @@ export default class EditForm extends Component {
     return (
       <Modal {...modalConfig}>
         <Form layout="horizontal">
-          {generateForm(getFieldDecorator)(columns)}
+          {transformColumns({
+            columns,
+            ctx: { getFieldDecorator },
+            generateFun: generateFormItemFromColumn,
+          })}
         </Form>
       </Modal>
     );
