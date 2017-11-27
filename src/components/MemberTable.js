@@ -19,6 +19,24 @@ const generateTableConfig = ({ columnPath, data }) => {
     R.mapObjIndexed((config, key) => {
       if (key.indexOf('$') === 0) {
         tableConfigs[key.slice(1)] = config(data);
+      } else if (key === 'hasFilters' && config) {
+        const getExistData = R.compose(
+          R.uniq,
+          R.map(R.path(columnPath)),
+        );
+
+        const generateTableFilter = data => ({
+          text: data,
+          value: data,
+        });
+        const generateTableFilters = R.map(generateTableFilter);
+
+        tableConfigs.filters = R.compose(
+          generateTableFilters,
+          getExistData,
+        )(data);
+
+        tableConfigs.onFilter = (value, record) => R.path(columnPath, record) === value;
       } else {
         tableConfigs[key] = config;
       }

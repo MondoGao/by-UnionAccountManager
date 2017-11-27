@@ -9,20 +9,6 @@ export const types = {
   object: 'OBJECT',
 };
 
-const getGroupName = R.path(['organization', 'department', 'name']);
-const getExistGroups = R.map(getGroupName);
-const getUniqExistGroups = R.compose(R.uniq, getExistGroups);
-
-const getPosition = R.path(['organization', 'role']);
-const getExistPositions = R.map(getPosition);
-const getUniqExistPositions = R.compose(R.uniq, getExistPositions);
-
-const generateTableFilter = data => ({
-  text: data,
-  value: data,
-});
-const generateTableFilters = R.map(generateTableFilter);
-
 const renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT);
 const renderGender = gender => (gender === 'male' ? '男' : '女');
 
@@ -75,8 +61,7 @@ export const organizationColumns = {
         title: '组别',
         type: types.string,
         tableOptions: {
-          $filters: R.compose(generateTableFilters, getUniqExistGroups),
-          onFilter: (value, record) => getGroupName(record) === value,
+          hasFilters: true,
         },
       },
       role: {
@@ -89,7 +74,7 @@ export const organizationColumns = {
     title: '团队职位',
     type: types.string,
     tableOptions: {
-      $filters: R.compose(generateTableFilters, getUniqExistPositions),
+      hasFilters: true,
     },
   },
   nickname: {
@@ -146,7 +131,7 @@ export const columns = {
     type: types.string,
     tableOptions: {
       render: renderGender,
-    }
+    },
   },
   phoneNumber: {
     title: '手机号',
