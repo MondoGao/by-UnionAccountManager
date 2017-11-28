@@ -20,11 +20,31 @@ const getFormErrorMessages = R.compose(
 @Form.create()
 export default class Login extends Component {
   state = {
-    isModalVisible: true,
+    isModalVisible: false,
     isModalLoading: true,
   }
 
+  componentDidMount() {
+    if (!this.props.user) {
+      this.readLoginFromLocalStorage();
+    }
+  }
+
   isLoginIn = () => !!this.props.user
+
+  getUserName = () => this.isLoginIn() ? this.props.user.accountName : '请登录'
+
+  loadModal = () => {
+    this.setState(() => ({
+      isModalLoading: true
+    }));
+  }
+
+  exitLoadingModal = () => {
+    this.setState(() => ({
+      isModalLoading: false,
+    }));
+  }
 
   toggleModal = () => {
     this.setState(({ isModalVisible }) => ({
@@ -32,9 +52,51 @@ export default class Login extends Component {
     }));
   }
 
+  hideModal = () => {
+    this.setState(({ isModalVisible }) => ({
+      isModalVisible: false,
+    }));
+  }
+
+  showModal = () => {
+    this.setState(({ isModalVisible }) => ({
+      isModalVisible: true,
+    }));
+
+  }
+
+  validateToken = async () => {
+    await users.getList();
+  }
+
+  readLoginFromLocalStorage = async () => {
+    const token = window.localStorage.getItem('token');
+    const user = window.localStorage.getItem('user');
+
+    if (token && user) {
+      try {
+        await this.validateToken();
+
+        this.props.onLoginUserChange(JSON.parse(user));
+
+        this.hideModal();
+      } catch (e) {
+        this.showModal();
+      }
+    }
+
+    this.exitLoadingModal();
+  }
+
   login = async (values) => {
     try {
-      await users.login(values);
+      const { token, user } = await users.login(values);
+
+      window.localStorage.setItem('token', token);
+      window.localStorage.setItem('user', JSON.stringify(user));
+
+      this.props.onLoginUserChange(user);
+      this.hideModal();
     } catch (e) {
       console.log(e);
     }
@@ -50,11 +112,24 @@ export default class Login extends Component {
     });
   }
 
+  handleMenuClick = ({ key }) => {
+    switch (key) {
+      case 'login':
+        this.toggleModal();
+        break;
+      default:
+    }
+  }
+
   renderMenu = () => {
     return (
-      <Menu>
-        <Menu.Item key="1">修改个人信息</Menu.Item>
-        <Menu.Item key="2">注销</Menu.Item>
+      <Menu onClick={this.handleMenuClick}>
+        {this.isLoginIn() ?
+            [
+              <Menu.Item key="edit">修改个人信息</Menu.Item>,
+              <Menu.Item key="logout">切换用户</Menu.Item>,
+            ] :
+            <Menu.Item key="login">登录</Menu.Item>}
       </Menu>
     );
   }
@@ -133,10 +208,11 @@ export default class Login extends Component {
   }
 
   render() {
+
     return (
       <Dropdown placement="bottomRight" overlay={this.renderMenu()}>
         <span className={styles.loginUser}>
-          测试 <Icon type="down" />
+          {this.getUserName()} <Icon type="down" />
           {this.renderModal()}
         </span>
       </Dropdown>

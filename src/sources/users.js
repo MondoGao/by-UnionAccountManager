@@ -102,7 +102,5 @@ export function getList() {
 };
 
 export const login = async ({ accountType, identity, pwd }) => {
-  const resp = await commonFetch(`${publibPath}users.login?accountType=${accountType}&identity=${identity}&pwd=${pwd}`);
-
-  return resp;
+  return commonFetch(`${publibPath}users.login?accountType=${accountType}&identity=${identity}&pwd=${pwd}`);
 };

@@ -1,4 +1,4 @@
-export const publibPath = `/1.0/`;
+export const publibPath = '/1.0/';
 
 export const commonFetch = async (...fetchArgs) => {
   const resp = await fetch(...fetchArgs);
@@ -11,7 +11,7 @@ export const commonFetch = async (...fetchArgs) => {
       throw new Error(data.error);
     }
 
-    return data;
+    return data.data;
   } catch (e) {
     if (!data && (resp.status < 200 || resp.status >= 400)) {
       throw new Error(resp.statusText);
