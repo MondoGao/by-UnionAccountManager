@@ -50,13 +50,6 @@ const generateTableConfig = ({ columnPath, data }) => {
   return tableConfigs;
 };
 
-const columnsWithColumnDataPath = transformColumns({
-  columns,
-  generateFun({ column, path }) {
-    return path;
-  },
-  willFlattenResult: false,
-});
 
 export default class MemberTable extends Component {
   state = {
@@ -83,15 +76,36 @@ export default class MemberTable extends Component {
   }
 
   handleAddMemberClick = () => {
+    this.setState(() => ({
+      formData: null,
+    }));
+
     this.toggleForm();
   }
 
-  handleEditMemberClick = (row) => () => {
+  handleEditMemberClick = row => () => {
     this.setState(() => ({
       formData: row,
     }));
 
     this.toggleForm();
+  }
+
+  handleFormDataChange = (formData) => {
+    this.setState(() => ({
+      formData,
+    }));
+  }
+
+  handleFormFieldsChange = (fields) => {
+    R.map((field) => {
+      const path = field.name.split('.');
+      const changeData = R.set(R.lensPath(path), field.value);
+
+      this.setState(({ formData }) => ({
+        formData: changeData(formData),
+      }));
+    })(fields);
   }
 
   renderTitle = () => (
@@ -136,6 +150,8 @@ export default class MemberTable extends Component {
       visible: isFormVisible,
       onCancel: this.toggleForm,
       onOk: (...args) => console.log(args),
+      onFieldsChange: this.handleFormFieldsChange,
+      onFormDataChange: this.handleFormDataChange,
     };
 
     return (

@@ -82,7 +82,7 @@ const transformFormDataToDotFlattenObj = ({ formData, columnsDataPath }) => {
       if (columnDataPath) {
         const columnDef = getColumnDefineFromColumnDataPath(columns, columnDataPath);
 
-        if (columnDef.type === types.time) {
+        if (columnDef.type === types.time && typeof value === 'number') {
           resultObj[columnDataPath] = moment(value);
           return;
         }
@@ -95,13 +95,9 @@ const transformFormDataToDotFlattenObj = ({ formData, columnsDataPath }) => {
   return resultObj;
 };
 
-const generateFieldObj = value => ({
-  value,
-})
-
 const columnsWithColumnDataPath = transformColumns({
   columns,
-  generateFun({ column, path }) {
+  generateFun({ path }) {
     return path.join('.');
   },
   willFlattenResult: false,
@@ -114,9 +110,14 @@ const columnsWithColumnDataPath = transformColumns({
         formData,
         columnsDataPath: columnsWithColumnDataPath,
       }));
-      console.log(result);
+
       return result;
     }
+
+    return undefined;
+  },
+  onFieldsChange(props, fields) {
+    props.onFieldsChange(fields);
   },
 })
 export default class EditForm extends Component {
@@ -127,6 +128,16 @@ export default class EditForm extends Component {
         values,
       });
     });
+  }
+
+  componentDidUpdate({ formData }) {
+    if (formData !== null && this.props.formData === null) {
+      this.props.form.resetFields();
+
+      this.props.form.validateFields({}, (errors, values) => {
+        this.props.onFormDataChange(values);
+      });
+    }
   }
 
   render() {
