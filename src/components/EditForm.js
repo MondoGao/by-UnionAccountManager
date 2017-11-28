@@ -1,59 +1,14 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, DatePicker } from 'antd';
+import { Modal, Form } from 'antd';
 import * as R from 'ramda';
 import moment from 'moment';
 
 import { columns, types } from '../constants/table';
 import {
   transformColumns,
-  transColumnDataPathToColumnPath,
   getColumnDefineFromColumnDataPath,
-} from '../constants/tableHelpers';
-
-const FormItem = Form.Item;
-
-const generateFormItemFromColumn = ({ path, column, ctx }) => {
-  const generateFieldDecoratorFromSchema = ({ path, type, getFieldDecorator }) => {
-    const name = path.join('.');
-    let formItem;
-    const fieldOptions = {};
-
-    switch (type) {
-      case types.string:
-        formItem = <Input />;
-        break;
-      case types.time:
-        formItem = <DatePicker />;
-        break;
-      case types.password:
-        formItem = <Input type="password" />;
-        break;
-      default:
-        formItem = <Input />;
-        break;
-    }
-
-    return getFieldDecorator(name, fieldOptions)(formItem);
-  };
-
-  const formItemConfig = {
-    label: column.title,
-    labelCol: { span: 4 },
-    wrapperCol: { span: 18 },
-  };
-
-  const formItem = (
-    <FormItem {...formItemConfig} key={path.join('.')}>
-      {generateFieldDecoratorFromSchema({
-        path,
-        getFieldDecorator: ctx.getFieldDecorator,
-        type: column.type,
-      })}
-    </FormItem>
-  );
-
-  return formItem;
-}
+} from '../helpers/table';
+import { generateFormItemFromColumn } from '../helpers/form';
 
 const transformFormDataToDotFlattenObj = ({ formData, columnsDataPath }) => {
   let resultObj = {};

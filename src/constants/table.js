@@ -7,6 +7,7 @@ export const types = {
   password: 'PASSWORD',
   array: 'ARRAY',
   object: 'OBJECT',
+  emum: 'ENUM',
 };
 
 const renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT);
