@@ -80,6 +80,7 @@ export default class Login extends Component {
         this.props.onLoginUserChange(JSON.parse(user));
 
         this.hideModal();
+        message.success('自动登录成功');
       } catch (e) {
         this.showModal();
       }
@@ -99,8 +100,9 @@ export default class Login extends Component {
 
       this.props.onLoginUserChange(user);
       this.hideModal();
+      message.success('登录成功');
     } catch (e) {
-      console.log(e);
+      message.error(e.message);
     }
 
     this.exitLoadingModal();
