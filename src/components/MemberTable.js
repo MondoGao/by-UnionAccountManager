@@ -7,7 +7,7 @@ import { columns, types } from '../constants/table';
 import {
   transformColumns,
   transColumnPathToColumnDataPath,
-} from '../constants/tableHelpers';
+} from '../helpers/table';
 import EditForm from './EditForm';
 
 const generateTableConfig = ({ columnPath, data }) => {
