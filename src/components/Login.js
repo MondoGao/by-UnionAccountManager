@@ -82,6 +82,7 @@ export default class Login extends Component {
         this.hideModal();
         message.success('自动登录成功');
       } catch (e) {
+        message.error(e.message);
         this.showModal();
       }
     }

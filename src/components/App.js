@@ -15,12 +15,21 @@ export default class App extends Component {
     loginUser: null,
   }
 
-  async componentDidMount() {
+  async componentDidUpdate(prevProps, { loginUser: prevLoginUser }) {
+    const { loginUser } = this.state;
+
+    if (loginUser && loginUser !== prevLoginUser) {
+      this.updateUserList();
+    }
+  }
+
+  updateUserList = async () => {
     const userList = await users.getList();
 
     this.setState(() => ({
       users: userList,
     }));
+
   }
 
   onLoginUserChange = (loginUser) => {

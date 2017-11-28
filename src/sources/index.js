@@ -1,6 +1,8 @@
-export const publibPath = '/1.0/';
+import * as R from 'ramda';
 
-export const commonFetch = async (...fetchArgs) => {
+export const publicPath = '/1.0/';
+
+export const commonFetch = async (url = '', config = {}) => {
   const extraConfig = {
     headers: {},
   };
@@ -9,10 +11,7 @@ export const commonFetch = async (...fetchArgs) => {
     extraConfig.headers.Authorization = `Bearer ${token}`;
   }
 
-  const resp = await fetch(fetchArgs[0], {
-    ...extraConfig,
-    ...fetchArgs[1],
-  });
+  const resp = await fetch(`${publicPath}${url}`, R.mergeDeepRight(extraConfig, config));
   let data;
 
   try {

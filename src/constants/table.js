@@ -56,7 +56,7 @@ export const schoolColumns = {
 
 export const organizationColumns = {
   department: {
-    type: types.object,
+    type: types.array,
     children: {
       name: {
         title: '组别',

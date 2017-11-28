@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, message } from 'antd';
 import * as R from 'ramda';
 
 import styles from './MemberTable.css';
@@ -9,8 +9,13 @@ import {
   transformFormData,
   generateTableConfig,
 } from '../helpers/table';
+import * as users from '../sources/users';
 import EditForm from './EditForm';
 
+const mode = {
+  create: 'CREATE',
+  edit: 'EDIT',
+};
 
 export default class MemberTable extends Component {
   state = {
@@ -28,6 +33,7 @@ export default class MemberTable extends Component {
       ['organization', 'leaveTime'],
     ],
     formData: null,
+    mode: mode.create,
   }
 
   toggleForm = () => {
@@ -52,7 +58,7 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
-  handleModalOk = ({ values }) => {
+  handleModalOk = async ({ values }) => {
     const resultData = transformFormData({
       transformColumns,
       columns,
@@ -83,7 +89,11 @@ export default class MemberTable extends Component {
       formData: values,
     });
 
-    console.log(resultData);
+    try {
+      await users.create(resultData);
+    } catch (e) {
+      message.error(e.message);
+    }
 
     this.toggleForm();
   }
