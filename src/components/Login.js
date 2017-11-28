@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import { Menu, Dropdown, Modal, Icon, Form, message } from 'antd';
 
 import styles from './Login.css';
+import * as users from '../sources/users';
 import { types } from '../constants/table';
 import {
   transformColumns,
@@ -20,6 +21,7 @@ const getFormErrorMessages = R.compose(
 export default class Login extends Component {
   state = {
     isModalVisible: true,
+    isModalLoading: true,
   }
 
   isLoginIn = () => !!this.props.user
@@ -30,8 +32,12 @@ export default class Login extends Component {
     }));
   }
 
-  login = (values) => {
-
+  login = async (values) => {
+    try {
+      await users.login(values);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   handleModalOk = () => {
@@ -54,12 +60,13 @@ export default class Login extends Component {
   }
 
   renderModal = () => {
-    const { isModalVisible } = this.state;
+    const { isModalVisible, isModalLoading } = this.state;
     const { form: { getFieldDecorator } } = this.props;
 
     const modalConfig = {
       visible: isModalVisible,
       title: '登录',
+      confirmLoading: isModalLoading,
       onCancel: this.toggleModal,
       onOk: this.handleModalOk,
     };

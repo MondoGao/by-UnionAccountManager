@@ -77,6 +77,9 @@ module.exports = smart(baseConfig, {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': 'production',
+    }),
     new ExtractTextPlugin({
       filename: 'styles/[name].[hash].css',
     }),

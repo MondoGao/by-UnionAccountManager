@@ -3,7 +3,7 @@ import { Layout } from 'antd';
 
 import MemberTable from './MemberTable';
 import Login from './Login';
-import { getUserList } from '../sources';
+import * as users from '../sources/users';
 
 import styles from './App.css';
 
@@ -15,13 +15,12 @@ export default class App extends Component {
     loginUser: null,
   }
 
-  componentDidMount() {
-    getUserList()
-      .then((users) => {
-        this.setState(() => ({
-          users,
-        }));
-      });
+  async componentDidMount() {
+    const userList = await users.getList();
+
+    this.setState(() => ({
+      users: userList,
+    }));
   }
 
   onLoginUserChange = (loginUser) => {

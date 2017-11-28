@@ -75,6 +75,10 @@ module.exports = smart(baseConfig, {
     host: '0.0.0.0',
     compress: true,
     proxy: {
+      '/1.0/': {
+        target: 'https://user-dev.hustonline.net',
+        changeOrigin: true,
+      },
     },
   },
 });
