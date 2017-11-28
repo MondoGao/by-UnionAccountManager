@@ -89,6 +89,8 @@ export default class Login extends Component {
   }
 
   login = async (values) => {
+    this.loadModal();
+
     try {
       const { token, user } = await users.login(values);
 
@@ -100,6 +102,8 @@ export default class Login extends Component {
     } catch (e) {
       console.log(e);
     }
+
+    this.exitLoadingModal();
   }
 
   handleModalOk = () => {
@@ -115,7 +119,10 @@ export default class Login extends Component {
   handleMenuClick = ({ key }) => {
     switch (key) {
       case 'login':
-        this.toggleModal();
+        this.showModal();
+        break;
+      case 'switch':
+        this.showModal();
         break;
       default:
     }
@@ -126,8 +133,8 @@ export default class Login extends Component {
       <Menu onClick={this.handleMenuClick}>
         {this.isLoginIn() ?
             [
-              <Menu.Item key="edit">修改个人信息</Menu.Item>,
-              <Menu.Item key="logout">切换用户</Menu.Item>,
+              <Menu.Item key="edit" disabled>修改个人信息</Menu.Item>,
+              <Menu.Item key="switch">切换用户</Menu.Item>,
             ] :
             <Menu.Item key="login">登录</Menu.Item>}
       </Menu>

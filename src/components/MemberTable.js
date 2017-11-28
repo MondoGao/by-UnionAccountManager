@@ -40,7 +40,7 @@ const generateTableConfig = ({ columnPath, data }) => {
           getExistData,
         )(data);
 
-        tableConfigs.onFilter = (value, record) => R.path(columnPath, record) === value;
+        tableConfigs.onFilter = (value, record) => R.path(columnDataPath, record) === value;
       } else {
         tableConfigs[key] = config;
       }
