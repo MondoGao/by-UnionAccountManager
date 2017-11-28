@@ -91,21 +91,10 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
-  handleFormDataChange = (formData) => {
-    this.setState(() => ({
-      formData,
-    }));
-  }
+  handleModalOk = ({ values }) => {
+    console.log(values);
 
-  handleFormFieldsChange = (fields) => {
-    R.map((field) => {
-      const path = field.name.split('.');
-      const changeData = R.set(R.lensPath(path), field.value);
-
-      this.setState(({ formData }) => ({
-        formData: changeData(formData),
-      }));
-    })(fields);
+    this.toggleForm();
   }
 
   renderTitle = () => (
@@ -149,9 +138,7 @@ export default class MemberTable extends Component {
       formData,
       visible: isFormVisible,
       onCancel: this.toggleForm,
-      onOk: (...args) => console.log(args),
-      onFieldsChange: this.handleFormFieldsChange,
-      onFormDataChange: this.handleFormDataChange,
+      onOk: this.handleModalOk,
     };
 
     return (

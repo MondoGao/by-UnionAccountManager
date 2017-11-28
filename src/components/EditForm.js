@@ -103,23 +103,17 @@ const columnsWithColumnDataPath = transformColumns({
   willFlattenResult: false,
 });
 
-@Form.create({
-  mapPropsToFields({ formData }) {
-    if (formData) {
-      const result = R.map(value => ({ value }))(transformFormDataToDotFlattenObj({
-        formData,
-        columnsDataPath: columnsWithColumnDataPath,
-      }));
+const transformFormDataToFormFields = ({ formData, columnsDataPath }) => (
+  R.map(
+    value => ({ value }),
+    transformFormDataToDotFlattenObj({
+      formData,
+      columnsDataPath,
+    }),
+  )
+);
 
-      return result;
-    }
-
-    return undefined;
-  },
-  onFieldsChange(props, fields) {
-    props.onFieldsChange(fields);
-  },
-})
+@Form.create()
 export default class EditForm extends Component {
   handleModalSubmit = () => {
     this.props.form.validateFields({}, (errors, values) => {
@@ -130,13 +124,19 @@ export default class EditForm extends Component {
     });
   }
 
-  componentDidUpdate({ formData }) {
-    if (formData !== null && this.props.formData === null) {
-      this.props.form.resetFields();
+  componentDidUpdate({ formData: prevFormData }) {
+    const { formData, form } = this.props;
+    if (prevFormData !== formData) {
+      form.resetFields();
 
-      this.props.form.validateFields({}, (errors, values) => {
-        this.props.onFormDataChange(values);
-      });
+      if (formData) {
+        const result = transformFormDataToFormFields({
+          formData,
+          columnsDataPath: columnsWithColumnDataPath,
+        });
+
+        form.setFields(result);
+      }
     }
   }
 
