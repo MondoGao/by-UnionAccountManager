@@ -3,10 +3,9 @@ import { types } from '../constants/table';
 
 export const getColumnOrTypeProp = ({ columnDef, path }) => {
   const cProp = R.path(path, columnDef);
-  if (cProp) return cProp;
-
   const tProp = R.path(path, columnDef.type);
-  return tProp;
+
+  return R.mergeDeepRight(tProp ? tProp : {}, cProp ? cProp : {});
 }
 
 /**

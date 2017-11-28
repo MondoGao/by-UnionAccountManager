@@ -171,14 +171,35 @@ export const columns = {
   name: {
     title: '姓名',
     type: types.string,
+    formOptions: {
+      rules: [
+        {
+          required: true,
+        },
+      ],
+    },
   },
   accountName: {
     title: '账户名',
     type: types.string,
+    formOptions: {
+      rules: [
+        {
+          required: true,
+        },
+      ],
+    },
   },
   pwd: {
     title: '密码',
     type: types.password,
+    formOptions: {
+      rules: [
+        {
+          required: true,
+        },
+      ],
+    },
   },
   nickname: {
     title: '昵称',
@@ -210,6 +231,13 @@ export const columns = {
   phoneNumber: {
     title: '手机号',
     type: types.string,
+    formOptions: {
+      rules: [
+        {
+          required: true,
+        },
+      ],
+    },
   },
   email: {
     title: '邮箱',
@@ -245,6 +273,14 @@ export const columns = {
     title: '系统权限',
     type: types.enum,
     formOptions: {
+      initialValue: '0',
+      formOptions: {
+        rules: [
+          {
+            required: true,
+          },
+        ],
+      },
       fieldValueToFormValue(fieldValue) {
         return Number(fieldValue);
       },

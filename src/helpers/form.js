@@ -2,12 +2,16 @@ import React from 'react';
 import { Form, Input, DatePicker, Select } from 'antd';
 import * as R from 'ramda';
 import { types } from '../constants/table';
+import { getColumnOrTypeProp } from './table';
 
 export const generateFormItemFromColumn = ({ path, column, ctx }) => {
   const generateFieldDecoratorFromSchema = ({ path, type, getFieldDecorator }) => {
     const name = path.join('.');
     let formItem;
-    const fieldOptions = column.formOptions;
+    const formOptions = getColumnOrTypeProp({
+      columnDef: column,
+      path: ['formOptions'],
+    });
 
     const generateSelectItem = (values) => {
       const generateOption = (title, value) => (
@@ -41,7 +45,7 @@ export const generateFormItemFromColumn = ({ path, column, ctx }) => {
         break;
     }
 
-    return getFieldDecorator(name, fieldOptions)(formItem);
+    return getFieldDecorator(name, formOptions)(formItem);
   };
 
   const formItemConfig = {
