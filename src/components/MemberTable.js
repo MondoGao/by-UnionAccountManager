@@ -4,17 +4,19 @@ import * as R from 'ramda';
 
 import styles from './MemberTable.css';
 import { columns, types } from '../constants/table';
+import sysRoleData, { editPermissions, createPermissions } from '../constants/sysRole';
 import {
   transformColumns,
   transformFormData,
   generateTableConfig,
 } from '../helpers/table';
+import { canCreateMember } from '../helpers/sysRole';
 import * as users from '../sources/users';
 import EditForm from './EditForm';
 
-const mode = {
-  create: 'CREATE',
-  edit: 'EDIT',
+const modes = {
+  create: 'create',
+  edit: 'edit',
 };
 
 export default class MemberTable extends Component {
@@ -33,7 +35,7 @@ export default class MemberTable extends Component {
       ['organization', 'leaveTime'],
     ],
     formData: null,
-    mode: mode.create,
+    mode: modes.create,
   }
 
   toggleForm = () => {
@@ -45,6 +47,7 @@ export default class MemberTable extends Component {
   handleAddMemberClick = () => {
     this.setState(() => ({
       formData: null,
+      mode: modes.create,
     }));
 
     this.toggleForm();
@@ -53,6 +56,7 @@ export default class MemberTable extends Component {
   handleEditMemberClick = row => () => {
     this.setState(() => ({
       formData: row,
+      mode: modes.edit,
     }));
 
     this.toggleForm();
@@ -89,8 +93,11 @@ export default class MemberTable extends Component {
       formData: values,
     });
 
+    const fullData = R.mergeDeepRight(this.state.formData, resultData);
+    console.log(fullData);
+
     try {
-      await users.create(resultData);
+      await users[this.state.mode](fullData);
     } catch (e) {
       message.error(e.message);
     }
@@ -98,17 +105,39 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
-  renderTitle = () => (
-    <div className={styles.tableTitle}>
-      <h2>成员信息</h2>
+  renderEditButtons = () => {
+    const { user } = this.props;
+
+    if (!user) {
+      return null;
+    }
+
+    const { sysRole } = user;
+    const sysRoleDef = sysRoleData[sysRole];
+
+    if (!canCreateMember(sysRoleDef.permissions)) {
+      return null;
+    }
+
+    return (
       <span>
         <Button.Group>
           <Button type="primary" onClick={this.handleAddMemberClick}>增加成员</Button>
           <Button type="primary">批量上传</Button>
         </Button.Group>
       </span>
-    </div>
-  )
+    );
+  }
+
+  renderTitle = () => {
+
+    return (
+      <div className={styles.tableTitle}>
+        <h2>成员信息</h2>
+        {this.renderEditButtons()}
+      </div>
+    );
+  }
 
   renderRowActions = (row) => (
     <Button onClick={this.handleEditMemberClick(row)}>编辑</Button>

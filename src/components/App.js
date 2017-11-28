@@ -47,7 +47,7 @@ export default class App extends Component {
 
         <Content>
           <section className="section">
-            <MemberTable data={this.state.users} />
+            <MemberTable user={this.state.loginUser} data={this.state.users} />
           </section>
         </Content>
       </Layout>

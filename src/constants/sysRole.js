@@ -1,11 +1,11 @@
 export const editPermissions = {
-  self: 'SELF',
-  gourp: 'GROUP',
-  organization: 'ORGANIZATION',
+  self: 'EDIT_SELF',
+  gourp: 'EDIT_GROUP',
+  organization: 'EDIT_ORGANIZATION',
 };
 export const createPermissions = {
-  group: 'GROUP',
-  organization: 'ORGANIZATION',
+  group: 'CREATE_GROUP',
+  organization: 'CREATE_ORGANIZATION',
 };
 const sysRoleData = {
   0: {
