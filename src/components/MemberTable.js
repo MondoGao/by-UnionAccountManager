@@ -9,6 +9,7 @@ import {
   transformColumns,
   transformFormData,
   generateTableConfig,
+  getColumnOrTypeProp,
 } from '../helpers/table';
 import { canCreateMember } from '../helpers/sysRole';
 import * as users from '../sources/users';
@@ -68,25 +69,26 @@ export default class MemberTable extends Component {
       columns,
       transFun({ column, formItem }) {
         if (R.isNil(formItem)) {
-          switch (column.type) {
-            case types.string:
-            case types.password:
-              return '';
-            case types.time:
-              return Date.now();
-            case types.object:
-              return {};
-            case types.array:
-              return [];
-            default:
-              return '';
+          const getDefaultFormValue = getColumnOrTypeProp({
+            columnDef: column,
+            path: ['formOptions', 'getDefaultFormValue']
+          });
+
+          if (getDefaultFormValue) {
+            return getDefaultFormValue(column);
           }
+
+          return '';
         }
 
-        if (column.type === types.time) {
-          return formItem.valueOf();
-        }
+        const fieldValueToFormValue = getColumnOrTypeProp({
+          columnDef: column,
+          path: ['formOptions', 'fieldValueToFormValue'],
+        });
 
+        if (fieldValueToFormValue) {
+          return fieldValueToFormValue(formItem);
+        }
 
         return formItem;
       },
@@ -129,15 +131,12 @@ export default class MemberTable extends Component {
     );
   }
 
-  renderTitle = () => {
-
-    return (
-      <div className={styles.tableTitle}>
-        <h2>成员信息</h2>
-        {this.renderEditButtons()}
-      </div>
-    );
-  }
+  renderTitle = () => (
+    <div className={styles.tableTitle}>
+      <h2>成员信息</h2>
+      {this.renderEditButtons()}
+    </div>
+  );
 
   renderRowActions = (row) => (
     <Button onClick={this.handleEditMemberClick(row)}>编辑</Button>

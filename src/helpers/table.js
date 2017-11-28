@@ -1,6 +1,14 @@
 import * as R from 'ramda';
 import { types } from '../constants/table';
 
+export const getColumnOrTypeProp = ({ columnDef, path }) => {
+  const cProp = R.path(path, columnDef);
+  if (cProp) return cProp;
+
+  const tProp = R.path(path, columnDef.type);
+  return tProp;
+}
+
 /**
  * 遍历属性配置，并向 generateFun 中传递 columnDataPath 等进行处理
  */

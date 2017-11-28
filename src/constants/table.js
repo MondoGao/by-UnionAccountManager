@@ -1,13 +1,66 @@
 import * as R from 'ramda';
 import { DateTime } from 'luxon';
+import moment from 'moment';
+import sysRoleData from './sysRole';
 
 export const types = {
-  string: 'STRING',
-  time: 'TIME',
-  password: 'PASSWORD',
-  array: 'ARRAY',
-  object: 'OBJECT',
-  emum: 'ENUM',
+  string: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return '';
+      },
+    },
+  },
+  time: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return Date.now();
+      },
+      formValueToFieldValue(formValue) {
+        return moment(formValue);
+      },
+      fieldValueToFormValue(fieldValue) {
+        return fieldValue.valueOf();
+      },
+    },
+    toString() {
+      return 'TIME';
+    },
+  },
+  password: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return '87542701';
+      },
+    },
+    toString() {
+      return 'PASSWORD';
+    },
+  },
+  array: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return [];
+      },
+    },
+  },
+  object: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return {};
+      },
+    },
+  },
+  enum: {
+    formOptions: {
+      getDefaultFormValue(columnDef) {
+        return R.keys(columnDef.values)[0];
+      },
+    },
+    toString() {
+      return 'ENUM';
+    },
+  },
 };
 
 const renderMilisTime = millis => DateTime.fromMillis(millis).toLocaleString(DateTime.DATE_SHORT);
@@ -78,6 +131,10 @@ export const organizationColumns = {
       hasFilters: true,
     },
   },
+  name: {
+    title: '团队名称',
+    type: types.string,
+  },
   nickname: {
     title: '昵称',
     type: types.string,
@@ -123,6 +180,22 @@ export const columns = {
     title: '密码',
     type: types.password,
   },
+  nickname: {
+    title: '昵称',
+    type: types.string,
+  },
+  hometown: {
+    title: '老家',
+    type: types.string,
+  },
+  birthday: {
+    title: '生日',
+    type: types.time,
+  },
+  homeAddress: {
+    title: '家庭地址',
+    type: types.string,
+  },
   headImg: {
     title: '头像',
     type: types.string,
@@ -158,10 +231,6 @@ export const columns = {
     title: '身份证号',
     type: types.string,
   },
-  hometown: {
-    title: '老家',
-    type: types.string,
-  },
   school: {
     title: '学校',
     type: types.array,
@@ -172,4 +241,21 @@ export const columns = {
     type: types.array,
     children: organizationColumns,
   },
+  sysRole: {
+    title: '系统权限',
+    type: types.enum,
+    formOptions: {
+      fieldValueToFormValue(fieldValue) {
+        return Number(fieldValue);
+      },
+      getDefaultFormValue(columnDef) {
+        return 0;
+      },
+    },
+    values: {
+      0: sysRoleData[0].name,
+      1: sysRoleData[1].name,
+      2: sysRoleData[2].name,
+    },
+  }
 };

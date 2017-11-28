@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Modal, Form } from 'antd';
 import * as R from 'ramda';
-import moment from 'moment';
 
 import { columns, types } from '../constants/table';
 import {
   transformColumns,
   getColumnDefineFromColumnDataPath,
+  getColumnOrTypeProp,
 } from '../helpers/table';
 import { generateFormItemFromColumn } from '../helpers/form';
 
@@ -37,8 +37,13 @@ const transformFormDataToDotFlattenObj = ({ formData, columnsDataPath }) => {
       if (columnDataPath) {
         const columnDef = getColumnDefineFromColumnDataPath(columns, columnDataPath);
 
-        if (columnDef.type === types.time && typeof value === 'number') {
-          resultObj[columnDataPath] = moment(value);
+        const formValueToFieldValue = getColumnOrTypeProp({
+          columnDef,
+          path: ['formOptions', 'formValueToFieldValue'],
+        });
+
+        if (formValueToFieldValue) {
+          resultObj[columnDataPath] = formValueToFieldValue(value);
           return;
         }
 
