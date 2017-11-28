@@ -65,19 +65,19 @@ export default class Login extends Component {
 
   }
 
-  validateToken = async () => {
-    await users.getList();
-  }
-
   readLoginFromLocalStorage = async () => {
     const token = window.localStorage.getItem('token');
     const user = window.localStorage.getItem('user');
 
     if (token && user) {
       try {
-        await this.validateToken();
+        const userObj = JSON.parse(user);
+        const { user: userData } = await users.getById(userObj._id);
 
-        this.props.onLoginUserChange(JSON.parse(user));
+        this.props.onLoginUserChange({
+          ...userObj,
+          user:userData,
+        });
 
         this.hideModal();
         message.success('自动登录成功');

@@ -29,7 +29,6 @@ export default class App extends Component {
     this.setState(() => ({
       users: userList,
     }));
-
   }
 
   onLoginUserChange = (loginUser) => {
