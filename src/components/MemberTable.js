@@ -6,69 +6,11 @@ import styles from './MemberTable.css';
 import { columns, types } from '../constants/table';
 import {
   transformColumns,
-  transColumnPathToColumnDataPath,
+  transformFormData,
+  generateTableConfig,
 } from '../helpers/table';
 import EditForm from './EditForm';
 
-const generateTableConfig = ({ columnPath, data }) => {
-  const { column, columnDataPath } = transColumnPathToColumnDataPath({
-    columns,
-    columnPath,
-  });
-
-  const tableConfigs = {
-    title: column.title,
-    dataIndex: columnDataPath.join('.'),
-  };
-
-  if (column.tableOptions) {
-    R.mapObjIndexed((config, key) => {
-      if (key === 'hasFilters' && config) {
-        const getExistData = R.compose(
-          R.uniq,
-          R.map(R.path(columnDataPath)),
-        );
-
-        const generateTableFilter = uniqData => ({
-          text: uniqData,
-          value: uniqData,
-        });
-        const generateTableFilters = R.map(generateTableFilter);
-
-        tableConfigs.filters = R.compose(
-          generateTableFilters,
-          getExistData,
-        )(data);
-
-        tableConfigs.onFilter = (value, record) => R.path(columnDataPath, record) === value;
-      } else {
-        tableConfigs[key] = config;
-      }
-    }, column.tableOptions);
-  }
-
-  return tableConfigs;
-};
-
-const transformFormData = ({ transFun, formData, transformColumns, columns }) => {
-  let resultFormData = R.clone(formData);
-
-  transformColumns({
-    columns,
-    generateFun({ column, path }) {
-      const lens = R.lensPath(path);
-      const formItem = R.view(lens, resultFormData);
-
-      resultFormData = R.set(lens, transFun({
-        column,
-        path,
-        formItem,
-      }), resultFormData);
-    },
-  });
-
-  return resultFormData;
-};
 
 export default class MemberTable extends Component {
   state = {
@@ -164,7 +106,11 @@ export default class MemberTable extends Component {
 
   render() {
     const { selectedColomns, isFormVisible, formData } = this.state;
-    const columns = R.map((columnPath) => generateTableConfig({ columnPath, data: this.props.data }), selectedColomns);
+    const columnsConfig = R.map((columnPath) => generateTableConfig({
+      columns,
+      columnPath,
+      data: this.props.data,
+    }), selectedColomns);
 
     const extraColumns = [
       {
@@ -175,7 +121,7 @@ export default class MemberTable extends Component {
     ]
 
     const tableConfig = {
-      columns: [...columns, ...extraColumns],
+      columns: [...columnsConfig, ...extraColumns],
       rowKey: '_id',
       dataSource: this.props.data,
       title: this.renderTitle,
