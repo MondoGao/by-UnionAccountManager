@@ -50,6 +50,25 @@ const generateTableConfig = ({ columnPath, data }) => {
   return tableConfigs;
 };
 
+const transformFormData = ({ transFun, formData, transformColumns, columns }) => {
+  let resultFormData = R.clone(formData);
+
+  transformColumns({
+    columns,
+    generateFun({ column, path }) {
+      const lens = R.lensPath(path);
+      const formItem = R.view(lens, resultFormData);
+
+      resultFormData = R.set(lens, transFun({
+        column,
+        path,
+        formItem,
+      }), resultFormData);
+    },
+  });
+
+  return resultFormData;
+};
 
 export default class MemberTable extends Component {
   state = {
@@ -92,7 +111,37 @@ export default class MemberTable extends Component {
   }
 
   handleModalOk = ({ values }) => {
-    console.log(values);
+    const resultData = transformFormData({
+      transformColumns,
+      columns,
+      transFun({ column, formItem }) {
+        if (R.isNil(formItem)) {
+          switch (column.type) {
+            case types.string:
+            case types.password:
+              return '';
+            case types.time:
+              return Date.now();
+            case types.object:
+              return {};
+            case types.array:
+              return [];
+            default:
+              return '';
+          }
+        }
+
+        if (column.type === types.time) {
+          return formItem.valueOf();
+        }
+
+
+        return formItem;
+      },
+      formData: values,
+    });
+
+    console.log(resultData);
 
     this.toggleForm();
   }
