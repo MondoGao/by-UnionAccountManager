@@ -63,6 +63,20 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
+  handleGrantMemberClick = row => async () => {
+    if (row.sysRole < 1) {
+      await users.update({
+        ...row,
+        sysRole: 1,
+      });
+
+      message.success('设置管理员成功');
+      this.props.freshData();
+    } else {
+      message.info('已经是管理员啦！再设置要登天喽~');
+    }
+  }
+
   handleModalOk = async ({ values }) => {
     const resultData = transformFormData({
       transformColumns,
@@ -140,7 +154,10 @@ export default class MemberTable extends Component {
   );
 
   renderRowActions = (row) => (
-    <Button onClick={this.handleEditMemberClick(row)}>编辑</Button>
+    <Button.Group>
+      <Button onClick={this.handleEditMemberClick(row)}>编辑</Button>
+      <Button onClick={this.handleGrantMemberClick(row)}>设为管理员</Button>
+    </Button.Group>
   )
 
   render() {
