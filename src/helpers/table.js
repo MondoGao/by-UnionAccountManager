@@ -20,6 +20,7 @@ export const transformColumns = ({
   ctx,
   columns,
   willFlattenResult = true,
+  willAddArrayIndex = true,
 }) => {
   const flattenResult = willFlattenResult ?
     R.compose(
@@ -32,7 +33,11 @@ export const transformColumns = ({
     const generateFormFromColumn = (column, path) => {
       switch (column.type) {
         case types.array:
-          return flattenResult(generateFormFromColumns([...path, 0])(column.children));
+          if (willAddArrayIndex) {
+            return flattenResult(generateFormFromColumns([...path, 0])(column.children));
+          }
+
+          return flattenResult(generateFormFromColumns(path)(column.children));
         case types.object:
           return flattenResult(generateFormFromColumns(path)(column.children));
         default:

@@ -13,3 +13,16 @@
     white-space: nowrap;
   }
 }
+
+.ckb-column-select {
+  flex: 0 0 100px;
+  margin-left: 0 !important;
+}
+
+.ckb-group-column-select {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  clear: both;
+  padding: 20px 60px 0 20px;
+}

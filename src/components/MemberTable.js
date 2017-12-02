@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Table, Button, message } from 'antd';
+import { Table, Checkbox, Button, message } from 'antd';
 import * as R from 'ramda';
 
 import styles from './MemberTable.css';
-import { columns, types } from '../constants/table';
-import sysRoleData, { editPermissions, createPermissions } from '../constants/sysRole';
+import { columns } from '../constants/table';
+import sysRoleData from '../constants/sysRole';
 import {
   transformColumns,
   transformFormData,
@@ -19,21 +19,34 @@ const modes = {
   create: 'create',
   edit: 'update',
 };
+const allColumnsWithPath = transformColumns({
+  columns,
+  generateFun({ column: columnDef, path }) {
+    return {
+      ...columnDef,
+      path,
+    };
+  },
+  willAddArrayIndex: false,
+});
+
+const pathArrToDotStr = path => path.join('.');
+const dotStrToPathArr = dotStr => dotStr.split('.');
 
 export default class MemberTable extends Component {
   state = {
     isFormVisible: false,
-    selectedColomns: [
-      ['name'],
-      ['organization', 'department', 'name'],
-      ['organization', 'role'],
-      ['sex'],
-      ['phoneNumber'],
-      ['email'],
-      ['school', 'class'],
-      ['school', 'IDNumber'],
-      ['organization', 'enrollTime'],
-      ['organization', 'leaveTime'],
+    selectedColumns: [
+      'name',
+      'organization.department.name',
+      'organization.role',
+      'sex',
+      'phoneNumber',
+      'email',
+      'school.class',
+      'school.IDNumber',
+      'organization.enrollTime',
+      'organization.leaveTime',
     ],
     formData: null,
     mode: modes.create,
@@ -122,6 +135,12 @@ export default class MemberTable extends Component {
     this.toggleForm();
   }
 
+  handleSelectedColumnsUpdate = (selectedColumns) => {
+    this.setState(() => ({
+      selectedColumns,
+    }));
+  }
+
   renderEditButtons = () => {
     const { user } = this.props;
 
@@ -146,10 +165,37 @@ export default class MemberTable extends Component {
     );
   }
 
+  renderColumnnSelectItem = ({ path, title }) => (
+    <Checkbox
+      className={styles.ckbColumnSelect}
+      key={pathArrToDotStr(path)}
+      value={pathArrToDotStr(path)}
+    >
+      {title}
+    </Checkbox>
+  )
+
+  renderColumnsSelect = () => (
+    <Checkbox.Group 
+      className={styles.ckbGroupColumnSelect}
+      value={this.state.selectedColumns}
+      onChange={this.handleSelectedColumnsUpdate}
+    >
+      {R.compose(
+        R.map(this.renderColumnnSelectItem),
+        R.filter(columnDef => !getColumnOrTypeProp({
+          columnDef,
+          path: ['tableOptions', 'isHidden'],
+        })),
+      )(allColumnsWithPath)}
+    </Checkbox.Group>
+  )
+
   renderTitle = () => (
     <div className={styles.tableTitle}>
       <h2>成员信息</h2>
       {this.renderEditButtons()}
+      {this.renderColumnsSelect()}
     </div>
   );
 
@@ -161,12 +207,13 @@ export default class MemberTable extends Component {
   )
 
   render() {
-    const { selectedColomns, isFormVisible, formData } = this.state;
+    const { selectedColumns, isFormVisible, formData } = this.state;
     const columnsConfig = R.map((columnPath) => generateTableConfig({
       columns,
       columnPath,
       data: this.props.data,
-    }), selectedColomns);
+    }), R.map(dotStrToPathArr, selectedColumns));
+
 
     const extraColumns = [
       {

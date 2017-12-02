@@ -205,6 +205,9 @@ export const columns = {
         },
       ],
     },
+    tableOptions: {
+      isHidden: true,
+    },
   },
   nickname: {
     title: '昵称',
