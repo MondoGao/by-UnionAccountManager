@@ -10,6 +10,11 @@ export const types = {
         return '';
       },
     },
+    tableOptions: {
+      render(str) {
+        return str || '无';
+      },
+    },
   },
   time: {
     formOptions: {

@@ -5,6 +5,10 @@ export const getColumnOrTypeProp = ({ columnDef, path }) => {
   const cProp = R.path(path, columnDef);
   const tProp = R.path(path, columnDef.type);
 
+  if (typeof cProp === 'object' && typeof tProp === 'object') {
+    return R.mergeDeepRight(tProp, cProp);
+  }
+
   return cProp || tProp;
 };
 
@@ -91,10 +95,16 @@ export const generateTableConfig = ({ columnPath, data, columns }) => {
     dataIndex: columnDataPath.join('.'),
   };
 
-  if (column.tableOptions) {
+  const tableOptions = getColumnOrTypeProp({
+    path: ['tableOptions'],
+    columnDef: column,
+  });
+
+  if (tableOptions) {
     R.mapObjIndexed((config, key) => {
       if (key === 'hasFilters' && config) {
         const getExistData = R.compose(
+          R.filter(val => !!val),
           R.uniq,
           R.map(R.path(columnDataPath)),
         );
@@ -114,7 +124,7 @@ export const generateTableConfig = ({ columnPath, data, columns }) => {
       } else {
         tableConfigs[key] = config;
       }
-    }, column.tableOptions);
+    }, tableOptions);
   }
 
   return tableConfigs;
