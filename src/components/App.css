@@ -1,5 +1,6 @@
 .app {
   height: 100vh;
+  min-width: 420px;
 
   & :global .ant-layout-header {
     color: #fff;
