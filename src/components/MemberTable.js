@@ -17,7 +17,7 @@ import EditForm from './EditForm';
 
 const modes = {
   create: 'create',
-  edit: 'edit',
+  edit: 'update',
 };
 
 export default class MemberTable extends Component {
@@ -100,6 +100,7 @@ export default class MemberTable extends Component {
 
     try {
       await users[this.state.mode](fullData);
+      this.props.freshData();
     } catch (e) {
       message.error(e.message);
     }

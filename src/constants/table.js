@@ -223,9 +223,13 @@ export const columns = {
   },
   sex: {
     title: '性别',
-    type: types.string,
+    type: types.enum,
     tableOptions: {
       render: renderGender,
+    },
+    values: {
+      male: '男',
+      female: '女',
     },
   },
   phoneNumber: {
@@ -280,6 +284,9 @@ export const columns = {
             required: true,
           },
         ],
+      },
+      formValueToFieldValue(formValue) {
+        return String(formValue);
       },
       fieldValueToFormValue(fieldValue) {
         return Number(fieldValue);

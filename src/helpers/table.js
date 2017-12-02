@@ -5,8 +5,8 @@ export const getColumnOrTypeProp = ({ columnDef, path }) => {
   const cProp = R.path(path, columnDef);
   const tProp = R.path(path, columnDef.type);
 
-  return R.mergeDeepRight(tProp ? tProp : {}, cProp ? cProp : {});
-}
+  return cProp || tProp;
+};
 
 /**
  * 遍历属性配置，并向 generateFun 中传递 columnDataPath 等进行处理

@@ -24,7 +24,7 @@ export default class App extends Component {
   }
 
   updateUserList = async () => {
-    const userList = await users.getList();
+    const { users: userList } = await users.getList();
 
     this.setState(() => ({
       users: userList,
@@ -47,7 +47,7 @@ export default class App extends Component {
 
         <Content>
           <section className="section">
-            <MemberTable user={this.state.loginUser} data={this.state.users} />
+            <MemberTable user={this.state.loginUser} data={this.state.users} freshData={this.updateUserList} />
           </section>
         </Content>
       </Layout>
