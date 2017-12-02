@@ -174,7 +174,7 @@ export default class MemberTable extends Component {
         key: '__actions',
         render: this.renderRowActions,
       }
-    ]
+    ];
 
     const tableConfig = {
       columns: [...columnsConfig, ...extraColumns],

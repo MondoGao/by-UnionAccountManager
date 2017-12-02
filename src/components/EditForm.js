@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Form } from 'antd';
+import { Modal, Form, message } from 'antd';
 import * as R from 'ramda';
 
 import { columns, types } from '../constants/table';
@@ -76,9 +76,14 @@ const transformFormDataToFormFields = ({ formData, columnsDataPath }) => (
 @Form.create()
 export default class EditForm extends Component {
   handleModalSubmit = () => {
+
     this.props.form.validateFields({}, (errors, values) => {
+      if (errors) {
+        message.error('表单填写有误，请检查表单');
+        return;
+      }
+
       this.props.onOk({
-        errors,
         values,
       });
     });
