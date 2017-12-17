@@ -20,7 +20,6 @@ module.exports = smart(baseConfig, {
           ExtractTextPlugin.extract({
             fallback: 'style-loader',
             use: [
-              'style-loader',
               {
                 loader: 'css-loader',
                 options: {

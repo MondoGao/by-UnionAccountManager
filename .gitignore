@@ -1,6 +1,7 @@
 # Mac
 .DS_Store
 src/fonts/
+dist/
 
 # Logs
 logs
