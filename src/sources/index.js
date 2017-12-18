@@ -1,6 +1,7 @@
 import * as R from 'ramda';
+import { publicPath as bashPath, apiPublicPath } from '../../settings';
 
-export const publicPath = '/1.0/';
+export const publicPath = `${bashPath}${apiPublicPath}`;
 
 export const commonFetch = async (url = '', config = {}) => {
   const extraConfig = {

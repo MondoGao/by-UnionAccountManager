@@ -1,4 +1,4 @@
-import { publibPath, commonFetch } from './index';
+import { commonFetch } from './index';
 
 export const getList = async () => commonFetch('users.getList');
 

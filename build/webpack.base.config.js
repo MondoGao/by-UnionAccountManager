@@ -2,7 +2,7 @@ const { resolve } = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const { publicPath } = require('../settings');
+const { publicPath, defaultSettings } = require('../settings');
 
 module.exports = {
   context: resolve(__dirname, '../'),
@@ -51,6 +51,9 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.PUBLIC_PATH': JSON.stringify(process.env.PUBLIC_PATH),
+      'process.env.API_PUBLIC_PATH': JSON.stringify(process.env.API_PUBLIC_PATH),
+      'process.env.PORT': JSON.stringify(process.env.PORT),
     }),
   ],
 };
