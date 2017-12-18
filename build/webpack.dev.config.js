@@ -4,7 +4,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const baseConfig = require('./webpack.base.config');
 
-const { publicPath, port } = require('../settings');
+const { apiPublicPath, publicPath, port } = require('../settings');
 
 module.exports = smart(baseConfig, {
   entry: {
@@ -75,7 +75,7 @@ module.exports = smart(baseConfig, {
     host: '0.0.0.0',
     compress: true,
     proxy: {
-      '/1.0/': {
+      [apiPublicPath]: {
         target: 'https://user-dev.hustonline.net',
         changeOrigin: true,
       },

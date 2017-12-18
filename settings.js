@@ -1,5 +1,5 @@
 const defaultSettings = {
-  apiPublicPath: 'v1.0/',
+  apiPublicPath: '/v1.0/',
   publicPath: '/',
   port: 8080,
 };

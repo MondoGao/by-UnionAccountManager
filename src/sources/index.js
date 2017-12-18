@@ -1,7 +1,5 @@
 import * as R from 'ramda';
-import { publicPath as bashPath, apiPublicPath } from '../../settings';
-
-export const publicPath = `${bashPath}${apiPublicPath}`;
+import { apiPublicPath } from '../../settings';
 
 export const commonFetch = async (url = '', config = {}) => {
   const extraConfig = {
@@ -12,7 +10,7 @@ export const commonFetch = async (url = '', config = {}) => {
     extraConfig.headers.Authorization = `Bearer ${token}`;
   }
 
-  const resp = await fetch(`${publicPath}${url}`, R.mergeDeepRight(extraConfig, config));
+  const resp = await fetch(`${apiPublicPath}${url}`, R.mergeDeepRight(extraConfig, config));
   let data;
 
   try {
